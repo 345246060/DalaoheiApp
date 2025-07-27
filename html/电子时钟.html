@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>电子钟</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #111;
+      color: #0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .clock {
+      text-align: center;
+    }
+
+    .time {
+      font-size: 5em;
+      letter-spacing: 0.1em;
+    }
+
+    .date {
+      font-size: 2em;
+      margin-top: 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock">
+    <div class="time" id="time">--:--:--</div>
+    <div class="date" id="date">----/--/--</div>
+  </div>
+
+  <script>
+    function padZero(num) {
+      return num.toString().padStart(2, '0');
+    }
+
+    function updateClock() {
+      try {
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = padZero(now.getMonth() + 1);
+        const day = padZero(now.getDate());
+        const hours = padZero(now.getHours());
+        const minutes = padZero(now.getMinutes());
+        const seconds = padZero(now.getSeconds());
+
+        const timeStr = `${hours}:${minutes}:${seconds}`;
+        const dateStr = `${year}/${month}/${day}`;
+
+        document.getElementById('time').textContent = timeStr;
+        document.getElementById('date').textContent = dateStr;
+      } catch (error) {
+        console.error("更新电子钟时发生错误：", error);
+        document.getElementById('time').textContent = "错误";
+        document.getElementById('date').textContent = "无法获取时间";
+      }
+    }
+
+    // 初始加载
+    updateClock();
+
+    // 每秒更新
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>

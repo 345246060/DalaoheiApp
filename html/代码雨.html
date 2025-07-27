@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>数字代码墙</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="codeWall" width="1080" height="1920"></canvas>
+
+  <script>
+    (function () {
+      try {
+        const canvas = document.getElementById('codeWall');
+        const ctx = canvas.getContext('2d');
+
+        const fontSize = 16;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = new Array(columns).fill(1);
+
+        function draw() {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = '#0F0';
+          ctx.font = fontSize + 'px monospace';
+
+          for (let i = 0; i < drops.length; i++) {
+            const text = Math.floor(Math.random() * 10);
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+            ctx.fillText(text, x, y);
+
+            if (y > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
+            }
+
+            drops[i]++;
+          }
+        }
+
+        setInterval(draw, 33);
+      } catch (err) {
+        console.error('代码墙加载失败:', err);
+      }
+    })();
+  </script>
+</body>
+</html>

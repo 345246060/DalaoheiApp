@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>3D数字字母球体</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+      width: 100%;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="codeWall"></canvas>
+
+  <script>
+    (function () {
+      try {
+        const canvas = document.getElementById('codeWall');
+        const ctx = canvas.getContext('2d', { alpha: true });
+
+        function resizeCanvas() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          initPoints();
+        });
+
+        resizeCanvas();
+
+        const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let radius = Math.min(canvas.width, canvas.height) / 3;
+        const perspective = 800;
+        const latSteps = 30;
+        const lonSteps = 45;
+        let angleX = 0;
+        let angleY = 0;
+        let points = [];
+
+        function initPoints() {
+          radius = Math.min(canvas.width, canvas.height) / 3;
+          points = [];
+          for (let i = 0; i <= latSteps; i++) {
+            const phi = Math.PI * (i / latSteps - 0.5);
+            for (let j = 0; j < lonSteps; j++) {
+              const theta = 2 * Math.PI * (j / lonSteps);
+              const x = radius * Math.cos(phi) * Math.cos(theta);
+              const y = radius * Math.sin(phi);
+              const z = radius * Math.cos(phi) * Math.sin(theta);
+              const value = characters.charAt(Math.floor(Math.random() * characters.length));
+              points.push({ x, y, z, value });
+            }
+          }
+        }
+
+        initPoints();
+
+        function rotateAndProject(point, angleX, angleY, centerX, centerY) {
+          let { x, y, z } = point;
+
+          let dx = x * Math.cos(angleY) - z * Math.sin(angleY);
+          let dz = x * Math.sin(angleY) + z * Math.cos(angleY);
+          x = dx;
+          z = dz;
+
+          let dy = y * Math.cos(angleX) - z * Math.sin(angleX);
+          dz = y * Math.sin(angleX) + z * Math.cos(angleX);
+          y = dy;
+          z = dz;
+
+          const scale = perspective / (perspective + z);
+          const screenX = centerX + x * scale;
+          const screenY = centerY + y * scale;
+          return { screenX, screenY, scale };
+        }
+
+        function drawFrame() {
+          const width = canvas.width;
+          const height = canvas.height;
+          const centerX = width / 2;
+          const centerY = height / 2;
+
+          ctx.clearRect(0, 0, width, height);
+
+          for (let point of points) {
+            point.value = characters.charAt(Math.floor(Math.random() * characters.length));
+            const { screenX, screenY, scale } = rotateAndProject(point, angleX, angleY, centerX, centerY);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = `${18 * scale}px monospace`;
+            ctx.fillText(point.value, screenX, screenY);
+          }
+
+          angleX += 0.005;
+          angleY += 0.008;
+
+          requestAnimationFrame(drawFrame);
+        }
+
+        drawFrame();
+      } catch (err) {
+        console.error('3D数字字母球体加载失败:', err);
+      }
+    })();
+  </script>
+</body>
+</html>
